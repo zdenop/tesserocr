@@ -7,9 +7,11 @@
 * (optional) [curl](https://curl.se/windows/) for downloading files from internet
 
 
-# Tesseract Windows installation (64bit) in command line
+# Tesseract 4.1.1 Windows installation (64bit) in command line
 
-Destination for installation:
+## Initialisation of project structure
+
+Destination for dependencies
 ```
     mkdir F:\win64
     set INSTALL_DIR=F:\win64
@@ -19,10 +21,14 @@ Destination for installation:
 Build tree:
 ```
     mkdir F:\Project & cd Project
+```
+
+Initialize VS environment:
+```
     call "c:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" x64
 ```
 
-## zlib build and instalation
+## zlib build and installation
 
 ```
     curl https://zlib.net/zlib1211.zip
@@ -34,7 +40,7 @@ Build tree:
     cd ..\..
 ```
 
-## libpng build and instalation
+## libpng build and installation
 
     curl https://vorboss.dl.sourceforge.net/project/libpng/libpng16/1.6.37/lpng1637.zip
     "c:\Program Files\Git\usr\bin\unzip.exe" lpng1637.zip
@@ -44,7 +50,7 @@ Build tree:
     "C:\Program Files\CMake\bin\cmake.exe"  --build . --config Release --target install
     cd ..\..
 
-## leptonica build and instalation
+## leptonica build and installation
 
     curl -L https://github.com/DanBloomberg/leptonica/archive/master.zip --output leptonica.zip
     "c:\Program Files\Git\usr\bin\unzip.exe" leptonica.zip
@@ -64,7 +70,7 @@ Then:
     cd ..\..
 
 
-## tesseract build and instalation
+## tesseract build and installation
 
     curl -L https://github.com/tesseract-ocr/tesseract/archive/4.1.1.zip --output tesseract.zip
     "c:\Program Files\Git\usr\bin\unzip.exe" tesseract.zip
@@ -81,8 +87,19 @@ Then:
     "C:\Program Files\CMake\bin\cmake.exe" --build . --config Release --target install
     cd ..\..
 
+### Post installation
+
+```
+    cd F:\Project
+    git clone --depth 1 https://github.com/tesseract-ocr/tessconfigs tessdata
+    curl -L https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata --output F:\Project\tessdata\eng.traineddata
+    curl -L https://github.com/tesseract-ocr/tessdata/raw/master/osd.traineddata --output F:\Project\tessdata\osd.traineddata
+    SET TESSDATA_PREFIX=F:\Project\tessdata
+```
+
 ### Check
 
+```
     %INSTALL_DIR%\bin\tesseract -v
     tesseract 4.1.1
      leptonica-1.81.0 (Mar 17 2021, 20:26:26) [MSC v.1928 LIB Release x64]
@@ -91,8 +108,9 @@ Then:
      Found AVX
      Found FMA
      Found SSE
+```
 
-# tesserocr
+# tesserocr build
 
 ```
     git clone https://github.com/zdenop/tesserocr.git
@@ -101,9 +119,51 @@ Then:
 ```
 
 ```
-SET VS90COMNTOOLS=%VS140COMNTOOLS%
-SET INCLUDE=%INCLUDE%;%INSTALL_DIR%\include
-SET LIBPATH=%LIBPATH%;%INSTALL_DIR%\lib
+    SET VS90COMNTOOLS=%VS140COMNTOOLS%
+    SET INCLUDE=%INCLUDE%;%INSTALL_DIR%\include
+    SET LIBPATH=%LIBPATH%;%INSTALL_DIR%\lib
 
-python setup.py build
+    python setup.py build
+    python setup.py bdist_wheel
+    pip uninstall tesserocr
+    pip install dist\tesserocr-2.5.2b0-cp38-cp38-win_amd64.whl
+```
+
+## Post installation
+
+Note: _adjust to you Python instalation_
+```
+    copy F:\win64\bin\*.dll "C:\Program Files\Python38\Lib\site-packages\"
+
+```
+
+## Check
+
+```
+    cd F:\Project\tesserocr
+    python
+    >>> import tesserocr
+    >>> tesserocr.PyTessBaseAPI.Version()
+    '4.1.1'
+    >>> tesserocr.get_languages()
+    ('F:\\Project\\tessdata/', ['eng', 'osd'])
+    >>> from PIL import Image
+    >>> image = Image.open(r'F:\Project\tesserocr\tests\eurotext.png')
+    >>> with tesserocr.PyTessBaseAPI() as api:
+    ...     api.SetImage(image)
+    ...     print(api.GetUTF8Text())
+    ...
+    The (quick) [brown] {fox} jumps!
+    Over the $43,456.78 <lazy> #90 dog
+    & duck/goose, as 12.5% of E-mail
+    from aspammer@website.com is spam.
+    Der ,schnelle” braune Fuchs springt
+    iiber den faulen Hund. Le renard brun
+    «rapide» saute par-dessus le chien
+    paresseux. La volpe marrone rapida
+    salta sopra il cane pigro. El zorro
+    marron ripido salta sobre el perro
+    perezoso. A raposa marrom ripida
+    salta sobre o cdo preguigoso.
+    >>>
 ```
