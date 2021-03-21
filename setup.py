@@ -6,7 +6,7 @@ import re
 import subprocess
 import errno
 import itertools
-import platform
+import glob
 from os.path import dirname, abspath
 from os.path import split as psplit, join as pjoin
 from setuptools import setup
@@ -26,6 +26,11 @@ _CYTHON_COMPILE_TIME_ENV = None
 
 # find_version from pip https://github.com/pypa/pip/blob/1.5.6/setup.py#L33
 here = abspath(dirname(__file__))
+
+EXTRA_COMPILE_ARGS = {
+    'msvc': ['/std:c11', '-DUSE_STD_NAMESPACE'],
+    'gcc': ['-std=c++11', '-DUSE_STD_NAMESPACE']
+    }
 
 
 def read(*parts):
@@ -93,6 +98,8 @@ def package_config():
                          stderr=subprocess.PIPE)
     _, error = p.communicate()
     if p.returncode != 0:
+        if isinstance(error, bytes):
+            error = error.decode()
         raise Exception(error)
 
     p = subprocess.Popen(['pkg-config', '--libs', '--cflags', 'tesseract'], stdout=subprocess.PIPE)
@@ -130,20 +137,22 @@ def package_config():
     return config
 
 
+def find_library(pattern, path_list, version=""):
+    """Help routine to find library."""
+    result = []
+    for path in path_list:
+        filepattern = os.path.join(path, pattern)
+        result += glob.glob(filepattern)
+    # ignore debug library
+    result = [i for i in result if not i.endswith('d.lib')]
+    if version:
+        result = [i for i in result if version in i]
+    return result
+
+
 def get_tesseract_version():
     """Try to extract version from tesseract otherwise default min version."""
-    if platform.system() == 'Windows':
-        libpath = os.getenv('LIBPATH', None)
-        if libpath:
-            libpath = libpath.split(";")
-        else:
-            libpath = []
-        config = {
-            'libraries': ['tesseract41', 'leptonica-1.81.0'],
-            'library_dirs': libpath,
-            }
-    else:
-        config = {'libraries': ['tesseract', 'lept']}
+    config = {'libraries': ['tesseract', 'lept']}
     try:
         p = subprocess.Popen(['tesseract', '-v'], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout_version, version = p.communicate()
@@ -164,6 +173,38 @@ def get_tesseract_version():
         'TESSERACT_MAJOR_VERSION': major_version(version),
         'TESSERACT_VERSION': version_to_int(version)
     }
+    if sys.platform == 'win32':
+        libpaths = os.getenv('LIBPATH', None)
+        if libpaths:
+            libpaths = libpaths.split(";")
+        else:
+            libpaths = []
+        if version:
+            lib_version = "".join(version.split('.')[:2])
+        else:
+            lib_version = None
+        tess_lib = find_library("tesseract*.lib", libpaths, lib_version)
+        if len(tess_lib) >= 1:
+            base = os.path.basename(sorted(tess_lib, reverse=True)[0])
+            tess_lib = os.path.splitext(base)[0]
+        else:
+            error = "Tesseract library not found in LIBPATH: {}".format(libpaths)
+            raise RuntimeError(error)
+        lept_lib = find_library("lept*.lib", libpaths)
+        if len(lept_lib) >= 1:
+            base = os.path.basename(sorted(lept_lib, reverse=True)[0])
+            lept_lib = os.path.splitext(base)[0]
+        else:
+            error = "Leptonica library not found in LIBPATH: {}".format(libpaths)
+            raise RuntimeError(error)
+        includepaths = os.getenv('INCLUDE', None)
+        if includepaths:
+            includepaths = includepaths.split(";")
+        else:
+            includepaths = []
+        config['libraries'] = [tess_lib, lept_lib]
+        config['library_dirs'] = libpaths
+        config['include_dirs'] = includepaths
     _LOGGER.info("Building with configs: %s", config)
     return config
 
@@ -177,17 +218,8 @@ def get_build_args():
             if e.errno != errno.ENOENT:
                 _LOGGER.warning('Failed to run pkg-config: %s', e)
         else:
-            _LOGGER.warning('pkg-config failed to find tesseract/lept libraries: %s', e)
+            _LOGGER.warning('pkg-config failed to find tesseract/leptonica libraries: %s', e)
         build_args = get_tesseract_version()
-
-    if build_args['compile_time_env']['TESSERACT_VERSION'] >= 0x3050200:
-        _LOGGER.debug('tesseract >= 03.05.02 requires c++11 compiler support')
-        if platform.system() == 'Windows':
-            extra_compile_args = ['/std:c11', '-DUSE_STD_NAMESPACE']
-        else:
-            extra_compile_args = ['-std=c++11', '-DUSE_STD_NAMESPACE']
-        build_args['extra_compile_args'] = extra_compile_args
-
     _LOGGER.debug('build parameters: %s', build_args)
     return build_args
 
@@ -200,6 +232,21 @@ def make_extension():
 
 
 class my_build_ext(build_ext, object):
+
+    def build_extensions(self):
+        compiler = self.compiler.compiler_type
+        _LOGGER.info("Detected compiler: %s", compiler)
+        extra_args = EXTRA_COMPILE_ARGS.get(compiler, EXTRA_COMPILE_ARGS['gcc'])
+        if isinstance(_CYTHON_COMPILE_TIME_ENV, dict):
+            version = _CYTHON_COMPILE_TIME_ENV.get('TESSERACT_VERSION', 0)
+        else:
+            version = 0
+        for extension  in self.extensions:
+            if version  >= 0x3050200:
+                _LOGGER.debug('tesseract >= 03.05.02 requires c++11 compiler support')
+                extension.extra_compile_args = extra_args
+        build_ext.build_extensions(self)
+
     def finalize_options(self):
         from Cython.Build.Dependencies import cythonize
         self.distribution.ext_modules[:] = cythonize(

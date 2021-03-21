@@ -123,6 +123,7 @@ Then:
     SET INCLUDE=%INCLUDE%;%INSTALL_DIR%\include
     SET LIBPATH=%LIBPATH%;%INSTALL_DIR%\lib
 
+    python setup.py clean --all
     python setup.py build
     python setup.py bdist_wheel
     pip uninstall tesserocr
