@@ -1,18 +1,19 @@
+import codecs
+import errno
+import glob
+import itertools
 import logging
 import os
-import sys
-import codecs
 import re
 import subprocess
-import errno
-import itertools
-import glob
-from os.path import dirname, abspath
-from os.path import split as psplit, join as pjoin
+import sys
+from os.path import abspath, dirname
+from os.path import join as pjoin
+from os.path import split as psplit
+
 from setuptools import setup
 from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
-
 
 _LOGGER = logging.getLogger()
 if os.environ.get('DEBUG'):
