@@ -83,7 +83,7 @@ or
 
 Then:
 
-    "C:\Program Files\CMake\bin\cmake.exe" .. -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_PREFIX_PATH=%INSTALL_DIR% -DBUILD_TRAINING_TOOLS=OFF -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DLeptonica_DIR=%INSTALL_DIR%\lib\cmake
+    "C:\Program Files\CMake\bin\cmake.exe" .. -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_PREFIX_PATH=%INSTALL_DIR% -DBUILD_TRAINING_TOOLS=OFF -DSW_BUILD=OFF -DOPENMP_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DLeptonica_DIR=%INSTALL_DIR%\lib\cmake
     "C:\Program Files\CMake\bin\cmake.exe" --build . --config Release --target install
     cd ..\..
 
@@ -126,7 +126,7 @@ Then:
     python setup.py clean --all
     python setup.py build
     python setup.py bdist_wheel
-    pip uninstall tesserocr
+    pip uninstall -y tesserocr
     pip install dist\tesserocr-2.5.2b0-cp38-cp38-win_amd64.whl
 ```
 

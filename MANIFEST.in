@@ -1,5 +1,6 @@
-include README.rst
-include LICENSE
-include *.pyx *.pxd
-include tests/*.py tests/*.png
+include *.pxd
+include tesserocr/*.dll
+include tesserocr/*.pyx
+include tesserocr/*.pxd
+include tesserocr/tests/*.py tesserocr/tests/*.png
 exclude *.cpp *.so

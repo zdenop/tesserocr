@@ -18,7 +18,6 @@ tesseract 3.04.00
  ['eng', 'osd', 'equ'])
 """
 
-__version__ = '2.5.2b0'
 
 import os
 from io import BytesIO
@@ -30,9 +29,9 @@ except ImportError:
     pass
 
 IF TESSERACT_MAJOR_VERSION < 5:
-    from tesseract cimport *
+    from tesserocr.tesseract cimport *
 ELSE:
-    from tesseract5 cimport *
+    from tesserocr.tesseract5 cimport *
 from libc.stdlib cimport malloc, free
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
@@ -57,7 +56,7 @@ _api.Init(NULL, NULL)
 IF TESSERACT_VERSION >= 0x3999800:
     cdef _DEFAULT_PATH = _api.GetDatapath()  # "tessdata/" is not appended by tesseract since commit dba13db
 ELSE:
-    cdef _DEFAULT_PATH = abspath(join(_api.GetDatapath(), os.pardir)) + os.sep
+    cdef _DEFAULT_PATH = abspath(_api.GetDatapath())
 _init_lang = _api.GetInitLanguagesAsString()
 if _init_lang == '':
     _init_lang = 'eng'
@@ -1413,7 +1412,7 @@ cdef class PyTessBaseAPI:
             bytes py_lang = _b(lang)
             cchar_t *cpath = py_path
             cchar_t *clang = py_lang
-            int configs_size = len(configs)
+            int configs_size = <int>len(configs)
             char **configs_ = <char **>malloc(configs_size * sizeof(char *))
             vector[string] vars_vec
             vector[string] vars_vals
@@ -1425,7 +1424,7 @@ cdef class PyTessBaseAPI:
             bytes py_lang = _b(lang)
             cchar_t *cpath = py_path
             cchar_t *clang = py_lang
-            int configs_size = len(configs)
+            int configs_size = <int>len(configs)
             char **configs_ = <char **>malloc(configs_size * sizeof(char *))
             GenericVector[STRING] vars_vec
             GenericVector[STRING] vars_vals
