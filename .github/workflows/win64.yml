@@ -44,6 +44,18 @@ jobs:
              set PKG_CONFIG_PATH=d:/a/local/lib/pkgconfig
              echo "PKG_CONFIG_PATH=d:/a/local/lib/pkgconfig" >> $GITHUB_ENV
              echo "Building webp because leptonica detect it and build failes in not installed..."
+             curl https://zlib.net/zlib1211.zip
+             unzip zlib1211.zip
+             cd zlib-1.2.11
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
+             cmake --build build --config Release --target install
+             cd ..
+             curl https://vorboss.dl.sourceforge.net/project/libpng/libpng16/1.6.37/lpng1637.zip
+             unzip.exe lpng1637.zip
+             cd lpng1637
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
+             cmake --build build --config Release --target install
+             cd ..
              git clone --depth 1 https://github.com/webmproject/libwebp.git && cd libwebp
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
              cmake --build build --config Release --target install
