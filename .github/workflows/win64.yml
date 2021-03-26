@@ -92,10 +92,10 @@ jobs:
           python setup.py sdist bdist_wheel
           python setup.py install
 
-      - name: Get git info
-        run: |      
-          BRANCH_NAME=$(echo $GITHUB_REF | cut -d'/' -f 3)
-          GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-8)
+      # - name: Get git info
+        # run: |
+          # BRANCH_NAME=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          # GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-8)
 
       - name: Upload distribution packages
         uses: actions/upload-artifact@v2
