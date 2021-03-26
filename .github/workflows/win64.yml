@@ -41,7 +41,7 @@ jobs:
              mkdir d:/a/local
              set PKG_CONFIG_PATH=d:/a/local/lib/pkgconfig
              echo "PKG_CONFIG_PATH=d:/a/local/lib/pkgconfig" >> $GITHUB_ENV
-             echo "Building webp because leptonica detect it and it failes..."
+             echo "Building webp because leptonica detect it and build failes in not installed..."
              git clone --depth 1 https://github.com/webmproject/libwebp.git && cd libwebp
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
              cmake --build build --config Release --target install
@@ -78,10 +78,10 @@ jobs:
       - name: Upload distribution packages
         uses: actions/upload-artifact@v2
         with:
-          name: artifact
-          path: dist/*
+          # name: tesserocr-${{matrix.os}}-${{matrix.python-version}}.whl
+          path: dist/*.whl
 
-      - name: Test with pytest
+      - name: Test
         shell: cmd
         run: |
           set LC_ALL=C
@@ -90,7 +90,7 @@ jobs:
           move tessdata d:/a/local/share
           curl -L https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata --output d:/a/local/share/tessdata/eng.traineddata
           curl -L https://github.com/tesseract-ocr/tessdata/raw/master/osd.traineddata --output d:/a/local/share/tessdata/osd.traineddata
-          SET TESSDATA_PREFIX=d:/a/local/share/tessdata
-          SET PATH=d:/a/local/bin;%PATH%
+          set TESSDATA_PREFIX=d:/a/local/share/tessdata
+          set PATH=d:/a/local/bin;%PATH%
           tesseract -v
-          REM pytest
+          pytest
