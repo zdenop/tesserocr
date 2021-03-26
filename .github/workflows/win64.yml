@@ -7,6 +7,8 @@ on:
 
   push:
     branches: [ improve_structure ]
+    # branches:
+      # - "!*"
     # tags:
       # - 'v*
   # [push, pull_request]
@@ -49,6 +51,7 @@ jobs:
              git clone --depth 1 https://github.com/DanBloomberg/leptonica.git && cd leptonica
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DBUILD_PROG=OFF -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
              cmake --build build --config Release --target install
+
       - name: Build and Install tesseract
         shell: cmd
         run: |
@@ -56,8 +59,13 @@ jobs:
              cmake -Bbuild -DBUILD_TRAINING_TOOLS=OFF -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DOPENMP_BUILD=OFF -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
              cmake --build build --config Release --target install
              REM D:/a/tesserocr/tesserocr/tesseract/build/CMakeFiles/CMakeOutput.log
+
       - name: Checkout code
         uses: actions/checkout@v2
+        run: |
+          BRANCH_NAME=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-8)
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -78,7 +86,7 @@ jobs:
       - name: Upload distribution packages
         uses: actions/upload-artifact@v2
         with:
-          # name: tesserocr-${{matrix.os}}-${{matrix.python-version}}.whl
+          name: tesserocr-${GITHUB_REF}-${{matrix.os}}-${{matrix.python-version}}.whl
           path: dist/*.whl
 
       - name: Test
@@ -93,4 +101,4 @@ jobs:
           set TESSDATA_PREFIX=d:/a/local/share/tessdata
           set PATH=d:/a/local/bin;%PATH%
           tesseract -v
-          pytest
+          REM pytest
