@@ -17,6 +17,7 @@ Destination for dependencies
     set INSTALL_DIR=F:\win64
     set PATH=%PATH%;%INSTALL_DIR%\bin
 ```
+*NOTE:* You can use other drive/disk than "`F`" (e.g. "`C`"). Make sure that it exists before any other steps.
 
 Build tree:
 ```
@@ -71,20 +72,30 @@ Then:
 
 ## tesseract build and installation
 
+```
     curl -L https://github.com/tesseract-ocr/tesseract/archive/4.1.1.zip --output tesseract.zip
     "c:\Program Files\Git\usr\bin\unzip.exe" tesseract.zip
     cd tesseract-4.1.1
+```
 
 or
 
+```
     git clone -b 4.1.1 --depth 1 https://github.com/tesseract-ocr/tesseract.git
     cd tesseract
+```
 
 Then:
 
+```
+    mkdir build.msvs && cd build.msvs
     "C:\Program Files\CMake\bin\cmake.exe" .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_PREFIX_PATH=%INSTALL_DIR% -DBUILD_TRAINING_TOOLS=OFF -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DOPENMP_BUILD=OFF -DLeptonica_DIR=%INSTALL_DIR%\lib\cmake
     "C:\Program Files\CMake\bin\cmake.exe" --build . --config Release --target install
     cd ..\..
+```
+
+*NOTE*: if use the latest leptonica, there is no need use `-DLeptonica_DIR=...` or you need to adjust it to: `-DLeptonica_DIR=%INSTALL_DIR%\lib\cmake\leptonica`
+
 
 ### Post installation
 
