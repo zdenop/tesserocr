@@ -31,10 +31,6 @@ jobs:
         run: |
              mkdir ${{env.ILOC}}
 
-      - name: Show MSVC version
-        run: |
-             cl /?
-
       - name: Uninstall Perl
         run: |
           choco uninstall strawberryperl
