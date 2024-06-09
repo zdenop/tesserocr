@@ -16,7 +16,16 @@ jobs:
     steps:
       - name: Setup Installation Location
         run: |
-             mkdir ${{env.ILOC}}
+             mkdir ${{env.ILOC}}/share/tessdata
+             
+      - name: download extra files
+        shell: cmd
+        run: |
+             curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output ${{env.ILOC}}/share/tessdata/eng.traineddata
+             curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
+             curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output ${{env.ILOC}}/share/test_ocr.pnm
+             curl -L https://github.com/unicode-org/icu/releases/download/release-75-1/icu4c-75_1-Win64-MSVC2022.zip --output icu4c-75_1-Win64-MSVC2022.zip
+             unzip.exe -qq icu4c-75_1-Win64-MSVC2022.zip -D ${{env.ILOC}}/
 
       - name: Uninstall Perl
         run: |
@@ -28,7 +37,7 @@ jobs:
              echo "Building leptonica..."
              git clone --depth 1 https://github.com/DanBloomberg/leptonica.git
              cd leptonica
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
+             cmake -G Ninja -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
              cmake --build build --config Debug --target install
 
       - name: Build and Install tesseract
@@ -37,18 +46,8 @@ jobs:
         run: |
              git clone --depth 1 https://github.com/zdenop/tesseract.git
              cd tesseract
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TRAINING_TOOLS=ON -DOPENMP_BUILD=OFF
+             cmake -G Ninja -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TRAINING_TOOLS=ON -DOPENMP_BUILD=ON
              cmake --build build --config Debug --target install
-             
-             
-      - name: download test files
-        shell: cmd
-        run: |
-             curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output ${{env.ILOC}}/share/tessdata/eng.traineddata
-             curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
-             curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output ${{env.ILOC}}/share/test_ocr.pnm
-             curl -L https://github.com/unicode-org/icu/releases/download/release-75-1/icu4c-75_1-Win64-MSVC2022.zip --output icu4c-75_1-Win64-MSVC2022.zip
-             unzip.exe -qq icu4c-75_1-Win64-MSVC2022.zip -D ${{env.ILOC}}
 
       - name: Upload Build Results
         uses: actions/upload-artifact@v4
