@@ -14,6 +14,7 @@ jobs:
     name: cmake-win64-min
     runs-on: windows-latest  # windows-2019
     steps:
+      - uses: seanmiddleditch/gha-setup-ninja@master
       - name: Setup Installation Location
         run: |
              mkdir ${{env.ILOC}}/share/tessdata
