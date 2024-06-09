@@ -52,6 +52,13 @@ jobs:
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
              cmake --build build --config Release --target install
 
+      - name: download test files
+        shell: cmd
+        run: |
+             curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output ${{env.ILOC}}/share/tessdata/eng.traineddata
+             curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
+             curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output ${{env.ILOC}}/test_ocr.pnm
+
       - name: Upload Build Results
         uses: actions/upload-artifact@v4
         with:
@@ -62,9 +69,6 @@ jobs:
       - name: Display Tesseract Version and Test Command Line Usage
         shell: cmd
         run: |
-          curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output ${{env.ILOC}}/share/tessdata/eng.traineddata
-          curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
-          curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output test_ocr.pnm
           echo "Setting TESSDATA_PREFIX..."
           set TESSDATA_PREFIX=${{env.ILOC}}/share/tessdata
           echo "Setting PATH..."
@@ -74,4 +78,4 @@ jobs:
           echo "Checking installed langs"
           tesseract --list-langs
           echo "Checking OCR process"
-          tesseract test_ocr.pnm -
+          tesseract --output ${{env.ILOC}}/test_ocr.pnm -
