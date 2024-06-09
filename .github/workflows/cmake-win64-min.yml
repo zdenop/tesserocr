@@ -29,7 +29,7 @@ jobs:
              git clone --depth 1 https://github.com/DanBloomberg/leptonica.git
              cd leptonica
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
-             cmake --build build --config Release --target install
+             cmake --build build --config Debug --target install
 
       - name: Build and Install tesseract
         id: build_tess
@@ -38,7 +38,7 @@ jobs:
              git clone --depth 1 https://github.com/zdenop/tesseract.git
              cd tesseract
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TRAINING_TOOLS=OFF -DOPENMP_BUILD=OFF
-             cmake --build build --config Release --target install
+             cmake --build build --config Debug --target install
              
              
       - name: download test files
