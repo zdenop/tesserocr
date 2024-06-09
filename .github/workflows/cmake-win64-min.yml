@@ -25,7 +25,7 @@ jobs:
              curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
              curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output ${{env.ILOC}}/share/test_ocr.pnm
              curl -L https://github.com/unicode-org/icu/releases/download/release-75-1/icu4c-75_1-Win64-MSVC2022.zip --output icu4c-75_1-Win64-MSVC2022.zip
-             unzip.exe -qq icu4c-75_1-Win64-MSVC2022.zip -D ${{env.ILOC}}/
+             unzip.exe -qq icu4c-75_1-Win64-MSVC2022.zip -d ${{env.ILOC}}/
 
       - name: Uninstall Perl
         run: |
