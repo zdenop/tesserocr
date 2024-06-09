@@ -37,7 +37,7 @@ jobs:
         run: |
              git clone --depth 1 https://github.com/zdenop/tesseract.git
              cd tesseract
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TRAINING_TOOLS=OFF -DOPENMP_BUILD=OFF
              cmake --build build --config Release --target install
              
              
@@ -67,4 +67,4 @@ jobs:
           echo "Checking installed langs"
           tesseract --list-langs
           echo "Checking OCR process"
-          tesseract --output ${{env.ILOC}}/test_ocr.pnm -
+          tesseract ${{env.ILOC}}/test_ocr.pnm -
