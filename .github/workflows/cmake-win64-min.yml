@@ -39,8 +39,6 @@ jobs:
              cd tesseract
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
              cmake --build build --config Release --target install
-             # $git_info=$(git describe --tags HEAD)
-             # echo "version=${git_info}" >> $env:GITHUB_OUTPUT
              
              
       - name: download test files
