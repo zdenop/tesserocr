@@ -12,21 +12,8 @@ env:
 jobs:
   build:
     name: cmake-win64-min
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
-      - uses: ilammy/setup-nasm@v1
-      - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - run: git fetch --prune --unshallow --tags
-
-      - name: Get the version
-        id: get_version
-        run: |
-             $git_info=$(git describe --tags HEAD)
-             echo "version=${git_info}" >> $env:GITHUB_OUTPUT
-
       - name: Setup Installation Location
         run: |
              mkdir ${{env.ILOC}}
@@ -49,9 +36,17 @@ jobs:
         run: |
              git clone --depth 1 https://github.com/zdenop/tesseract.git
              cd tesseract
+             $git_info=$(git describe --tags HEAD)
+             echo "version=${git_info}" >> $env:GITHUB_OUTPUT
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
              cmake --build build --config Release --target install
-
+             
+      - name: Get the version
+        id: get_version
+        run: |
+             $git_info=$(git describe --tags HEAD)
+             echo "version=${git_info}" >> $env:GITHUB_OUTPUT
+             
       - name: download test files
         shell: cmd
         run: |
@@ -62,7 +57,7 @@ jobs:
       - name: Upload Build Results
         uses: actions/upload-artifact@v4
         with:
-          name: tesseract-${{ steps.get_version.outputs.version }}-VS2019_win64
+          name: tesseract-${{ steps.get_version.outputs.version }}-VS2022_win64
           path: ${{env.ILOC}}
           retention-days: 7
 
