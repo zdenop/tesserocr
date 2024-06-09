@@ -46,7 +46,7 @@ jobs:
         run: |
              curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output ${{env.ILOC}}/share/tessdata/eng.traineddata
              curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
-             curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output ${{env.ILOC}}/test_ocr.pnm
+             curl -L https://1.bp.blogspot.com/_MhqIXUSBPdw/R3fh2bAOmsI/AAAAAAAAC70/6nnWWBZnleY/s400/out.pnm --output ${{env.ILOC}}/share/test_ocr.pnm
 
       - name: Upload Build Results
         uses: actions/upload-artifact@v4
@@ -67,4 +67,4 @@ jobs:
           echo "Checking installed langs"
           tesseract --list-langs
           echo "Checking OCR process"
-          tesseract ${{env.ILOC}}/test_ocr.pnm -
+          tesseract ${{env.ILOC}}/share/test_ocr.pnm -
